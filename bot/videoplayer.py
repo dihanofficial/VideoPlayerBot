@@ -31,21 +31,21 @@ group_call_factory = GroupCallFactory(app, GroupCallFactory.MTPROTO_CLIENT_TYPE.
 @Client.on_message(command(["vplay", f"vplay@{BOT_USERNAME}"]) & filters.group & ~filters.edited)
 async def vstream(_, m: Message):
     if 1 in STREAM:
-        await m.reply_text("😕 **sorry, there's another video streaming right now**\n\n» **wait for it to finish then try again!**")
+        await m.reply_text("Reply To An Video To Stream! ❗️ ")
         return   
 
     media = m.reply_to_message
     if not media and not ' ' in m.text:
-        await m.reply_text("🙋‍** Give me  video or live stream url or youtube url  to stream the video!\n\n✮✮Use the /vplay command by replying to the video\n\nOr giveing live stream url or youtube url **")
+        await m.reply_text("🙋‍** Give me  video or live stream url or youtube url  to stream the video!\n\n Use the /vplay command by replying to the video\n\nOr giveing live stream url or youtube url **")
 
     elif ' ' in m.text:
-        msg = await m.reply_text("🔄 ** Please Wait ⏳ ...🎵 Processing Your Song ...  **")
+        msg = await m.reply_text("🔄 **Processing..**")
         text = m.text.split(' ', 1)
         query = text[1]
         regex = r"^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+"
         match = re.match(regex,query)
         if match:
-            await msg.edit("⏰ **starting youtube streaming...**")
+            await msg.edit("🎛 **Starting Youtube Streaming...**")
             try:
                 meta = ydl.extract_info(query, download=False)
                 formats = meta.get('formats', [meta])
@@ -62,7 +62,7 @@ async def vstream(_, m: Message):
                 await group_call.join(chat_id)
                 await group_call.start_video(ytstream, repeat=False)
                 VIDEO_CALL[chat_id] = group_call
-                await msg.edit((f"💡 **started [youtube streaming]({ytstream}) !\n\n» join to video chat to watch the youtube stream.**"), disable_web_page_preview=True)
+                await msg.edit((f"🎶 **Started [youtube streaming]({ytstream}) !\n\n» join to video chat to watch the youtube stream.**"), disable_web_page_preview=True)
                 try:
                     STREAM.remove(0)
                 except:
@@ -72,9 +72,9 @@ async def vstream(_, m: Message):
                 except:
                     pass
             except Exception as e:
-                await msg.edit(f"❌ **something went wrong!** \n\nError: `{e}`")
+                await msg.edit(f"❌ **Something went wrong!** \n\nError: `{e}`")
         else:
-            await msg.edit("⏰**starting live streaming...**")
+            await msg.edit("🎚**Starting Live Streaming...**")
             livestream = query
             chat_id = m.chat.id
             await sleep(2)
@@ -83,7 +83,7 @@ async def vstream(_, m: Message):
                 await group_call.join(chat_id)
                 await group_call.start_video(livestream, repeat=False)
                 VIDEO_CALL[chat_id] = group_call
-                await msg.edit((f"💡 **started [live streaming]({livestream}) !\n\n» join to video chat to watch the live stream.**"), disable_web_page_preview=True)
+                await msg.edit((f"🎚 **started [live streaming]({livestream}) !\n\n» join to video chat to watch the live stream.**"), disable_web_page_preview=True)
                 try:
                     STREAM.remove(0)
                 except:
@@ -93,10 +93,10 @@ async def vstream(_, m: Message):
                 except:
                     pass
             except Exception as e:
-                await msg.edit(f"❌ **something went wrong!** \n\nerror: `{e}`")
+                await msg.edit(f"❌ **Something went wrong!** \n\nerror: `{e}`")
 
     elif media.video or media.document:
-        msg = await m.reply_text("📥 **downloading video...**\n\n💭 __this process will take quite a while depending on the size of the video.__")
+        msg = await m.reply_text("📥 **Downloading..**")
         video = await media.download()
         chat_id = m.chat.id
         await sleep(2)
@@ -105,7 +105,7 @@ async def vstream(_, m: Message):
             await group_call.join(chat_id)
             await group_call.start_video(video, repeat=False)
             VIDEO_CALL[chat_id] = group_call
-            await msg.edit("💡 **video streaming started!**\n\n» **join to video chat to watch the video.**")
+            await msg.edit("🎚**Video Streaming Started!**\n\n» **join to video chat to watch the video.**")
             try:
                 STREAM.remove(0)
             except:
@@ -115,22 +115,22 @@ async def vstream(_, m: Message):
             except:
                 pass
         except Exception as e:
-            await msg.edit(f"❌ **something went wrong!** \n\nerror: `{e}`")
+            await msg.edit(f"❌ **Something went wrong!** \n\nerror: `{e}`")
     else:
-        await msg.edit("🔺 **please reply to a video or live stream url or youtube url to stream the video!**")
+        await msg.edit("**Please reply to a video or live stream url or youtube url to stream the video!**")
         return
 
 
-@Client.on_message(command(["vstop", f"vstop@{BOT_USERNAME}"]) & filters.group & ~filters.edited)
+@Client.on_message(command(["stop", f"stop@{BOT_USERNAME}"]) & filters.group & ~filters.edited)
 @authorized_users_only
-async def vstop(_, m: Message):
+async def stop(_, m: Message):
     chat_id = m.chat.id
     if 0 in STREAM:
-        await m.reply_text("🙋‍** Give me  video or live stream url or youtube url  to stream the video!\n\n✮✮Use the /vplay command by replying to the video\n\nOr giveing live stream url or youtube url **")
+        await m.reply_text("🙋‍** Give me  video or live stream url or youtube url  to stream the video!\n\n Use the /vplay command by replying to the video\n\nOr giveing live stream url or youtube url **")
         return
     try:
         await VIDEO_CALL[chat_id].stop()
-        await m.reply_text("🔴 **streaming has ended !**\n\n✅ __userbot has been disconnected from the video chat__\n\nyou can play again after 2 min")
+        await m.reply_text("🔴 **Streaming has ended !**")
         try:
             STREAM.remove(1)
         except:
@@ -140,4 +140,4 @@ async def vstop(_, m: Message):
         except:
             pass
     except Exception as e:
-        await m.reply_text(f"❌ **something went wrong! ** \n\nerror: `{e}`")
+        await m.reply_text(f"❌ **Something went wrong! ** \n\nerror: `{e}`")
