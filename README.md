@@ -6,6 +6,18 @@
 
 
 
+
+##  Deploy to Heroku  👨‍🔧
+The easy way to host this bot
+
+<p align="center"><a href="https://heroku.com/deploy?template=https://github.com/dihanofficial/VideoPlayerBot"><img src="https://img.shields.io/badge/Deploy%20To%20Heroku-black?style=for-the-badge&logo=heroku" width="220" height="38.45"/></a></p>
+
+
+# Deploy On Railway
+[![Deploy+on+Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/dihanofficial/VideoPlayerBot&envs=API_ID,API_HASH,BOT_TOKEN,SESSION_NAME,ASSISTANT_NAME,BOT_USERNAME,DURATION_LIMIT,SUDO_USERS)
+  
+
+
 ❓ --**Setting Up**-- :
 - 1.) first, add me to your group.
 - 2.) then promote me as admin and give all permissions except anonymous admin.
@@ -15,22 +27,12 @@
 - 6.) type /stop to end the video streaming.
 
 
-
-
-##  Deploy to Heroku  👨‍🔧
-The easy way to host this bot
-
-<p align="center"><a href="https://heroku.com/deploy?template=https://github.com/dihanofficial/VideoPlayerBot"><img src="https://img.shields.io/badge/HEROKU-DEPLOY-blue?style=plastic&logo=heroku&logoColor=yellow"width="300"heigh="100" /></a></p>
-
-# Deploy On Railway
-[![Deploy+on+Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/dihanofficial/VideoPlayerBot&envs=API_ID,API_HASH,BOT_TOKEN,SESSION_NAME,ASSISTANT_NAME,BOT_USERNAME,DURATION_LIMIT,SUDO_USERS)
-  
 ## VPS Deployment
 ```
 - sudo apt update && ugrade -y
 - sudo apt install python3-pip -y virtualenv
 - sudo apt install ffmpeg -y
-- git clone https://github.com/youtubeslgeekshow/TG-video-stream-bot  #Clone your repo.
+- git clone https://github.com/dihanofficial/VideoPlayerBot  #Clone your repo.
 - cd video-stream
 - virtualenv env #Create Virtual Environment.
 - source env/bin/activate #Activate Virtual Environment
