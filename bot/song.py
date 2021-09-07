@@ -33,7 +33,7 @@ def song(client, message):
     for i in message.command[1:]:
         query += " " + str(i)
     print(query)
-    m = message.reply("🔎 finding song...")
+    m = message.reply("🔎 Finding song...")
     ydl_opts = {"format": "bestaudio[ext=m4a]"}
     try:
         results = YoutubeSearch(query, max_results=1).to_dict()
@@ -279,11 +279,11 @@ async def vsong(_, message: Message):
             open(thumb_name, 'wb').write(thumb.content)
         except Exception as e:
             print(e)
-            await k.edit('❌ **video not found, please give a valid video name.\n\n» if you think this is an error report to @slbotzone**')
+            await k.edit('❌ **video not found, please give a valid video name.\n\n» if you think this is an error report to @dihanofficial**')
             return
     except Exception as e:
         await k.edit(
-            "💡 **please give a video name too you want to download.**\n\n» for example: `/vsong runaway`"
+            "💡 **please give a video name too you want to download.**\n\n» for example: `/vsong despacito`"
         )
         print(str(e))
         return
@@ -293,13 +293,13 @@ async def vsong(_, message: Message):
             info_dict = ydl.extract_info(link, download=False)
             video_file = ydl.prepare_filename(info_dict)
             ydl.process_info(info_dict)
-        caption = f"🏷 Name: {title}\n💡 Views: `{views}`\n🎧 Request by: {message.from_user.mention()}\n\n@szrosebot🇱🇰"
+        caption = f"🏷 Name: {title}\n💡 Views: `{views}`\n🎧 Request by: {message.from_user.mention()}\n\n@dihanofficial"
         buttons = InlineKeyboardMarkup([[InlineKeyboardButton(" Close", callback_data="cls")]])
         await k.edit("📤 **uploading file...**")
         await message.reply_video(video_file, caption=caption, duration=duration, thumb=thumb_name, reply_markup=buttons, supports_streaming=True)
         await k.delete()
     except Exception as e:
-        await k.edit(f'❌ **something went wrong !** \n`{e}`')
+        await k.edit(f'❌ **Something went wrong !** \n`{e}`')
         pass
     try:
         os.remove(video_file)
