@@ -61,6 +61,6 @@ async def inline(client: Client, query: InlineQuery):
 # Tested
 
 menus = [
-        InlineQueryResultArticle(title="Start", description="Start a bot", input_message_content=InputTextMessageContent("/vstart")),
+        InlineQueryResultArticle(title="Start", description="Start a bot", input_message_content=InputTextMessageContent("/start")),
         InlineQueryResultArticle(title="Info Bot", description="Info about this bot", input_message_content=InputTextMessageContent("/help")),
     ]
