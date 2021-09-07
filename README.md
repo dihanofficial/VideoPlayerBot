@@ -4,8 +4,7 @@
 
 
 
-## Repo Stats
-![github card](https://github-readme-stats.vercel.app/api/pin/?username=dihanofficial&repo=VideoPlayerBot&theme=dark)
+
 
 ❓ --**Setting Up**-- :
 - 1.) first, add me to your group.
