@@ -1,143 +1,332 @@
-import re
-from os import path
-from asyncio import sleep
-from youtube_dl import YoutubeDL
+# Copyright (C) 2021 By Dihan Official
+
+import os
+import asyncio
+import subprocess
+from pytgcalls import idle
+from pytgcalls.pytgcalls import PyTgCalls
+from pytgcalls import StreamType
+from pytgcalls.types import Update
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram import Client, filters
 from pyrogram.types import Message
-from pytgcalls import GroupCallFactory
-from config import API_ID, API_HASH, SESSION_NAME, BOT_USERNAME
+from config import Sophia
 from helpers.decorators import authorized_users_only
 from helpers.filters import command
-
-
-STREAM = {8}
-VIDEO_CALL = {}
-
-ydl_opts = {
-        "geo-bypass": True,
-        "nocheckcertificate": True,
-}
-ydl = YoutubeDL(ydl_opts)
-
-
-app = Client(
-    SESSION_NAME,
-    api_id=API_ID,
-    api_hash=API_HASH,
+from helpers.loggings import LOG
+from youtube_dl import YoutubeDL
+from youtube_dl.utils import ExtractorError
+from pytgcalls.types.input_stream import (
+    VideoParameters,
+    AudioParameters,
+    InputAudioStream,
+    InputVideoStream
 )
-group_call_factory = GroupCallFactory(app, GroupCallFactory.MTPROTO_CLIENT_TYPE.PYROGRAM)
+
+SIGINT: int = 2
+
+app = Client(Sophia.SESSION_NAME, Sophia.API_ID, Sophia.API_HASH)
+call_py = PyTgCalls(app)
+FFMPEG_PROCESS = {}
 
 
-@Client.on_message(command(["vplay", f"vplay@{BOT_USERNAME}"]) & filters.group & ~filters.edited)
-async def vstream(_, m: Message):
-    if 1 in STREAM:
-        await m.reply_text("Reply To An Video To Stream! ❗️ ")
-        return   
+def convert_seconds(seconds: int) -> str:
+    seconds = seconds % (24 * 3600)
+    seconds %= 3600
+    minutes = seconds // 60
+    seconds %= 60
+    return "%02d:%02d" % (minutes, seconds)
 
-    media = m.reply_to_message
-    if not media and not ' ' in m.text:
-        await m.reply_text("🙋‍** Give me  video or live stream url or youtube url  to stream the video!\n\n Use the /vplay command by replying to the video\n\nOr giveing live stream url or youtube url **")
 
-    elif ' ' in m.text:
-        msg = await m.reply_text("🔄 **Processing..**")
-        text = m.text.split(' ', 1)
-        query = text[1]
-        regex = r"^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+"
-        match = re.match(regex,query)
-        if match:
-            await msg.edit("🎛 **Starting Youtube Streaming...**")
-            try:
-                meta = ydl.extract_info(query, download=False)
-                formats = meta.get('formats', [meta])
-                for f in formats:
-                        ytstreamlink = f['url']
-                ytstream = ytstreamlink
-            except Exception as e:
-                await msg.edit(f"❌ **youtube downloader error!** \n\n`{e}`")
-                return
-            await sleep(2)
-            try:
-                chat_id = m.chat.id
-                group_call = group_call_factory.get_group_call()
-                await group_call.join(chat_id)
-                await group_call.start_video(ytstream, repeat=False)
-                VIDEO_CALL[chat_id] = group_call
-                await msg.edit((f"🎶 **Started [youtube streaming]({ytstream}) !\n\n» join to video chat to watch the youtube stream.**"), disable_web_page_preview=True)
-                try:
-                    STREAM.remove(0)
-                except:
-                    pass
-                try:
-                    STREAM.add(1)
-                except:
-                    pass
-            except Exception as e:
-                await msg.edit(f"❌ **Something went wrong!** \n\nError: `{e}`")
-        else:
-            await msg.edit("🎚**Starting Live Streaming...**")
-            livestream = query
-            chat_id = m.chat.id
-            await sleep(2)
-            try:
-                group_call = group_call_factory.get_group_call()
-                await group_call.join(chat_id)
-                await group_call.start_video(livestream, repeat=False)
-                VIDEO_CALL[chat_id] = group_call
-                await msg.edit((f"🎚 **started [live streaming]({livestream}) !\n\n» join to video chat to watch the live stream.**"), disable_web_page_preview=True)
-                try:
-                    STREAM.remove(0)
-                except:
-                    pass
-                try:
-                    STREAM.add(1)
-                except:
-                    pass
-            except Exception as e:
-                await msg.edit(f"❌ **Something went wrong!** \n\nerror: `{e}`")
+def raw_converter(dl, song, video):
+    return subprocess.Popen(
+        ['ffmpeg', '-i', dl, '-f', 's16le', '-ac', '1', '-ar', '48000', song, '-y', '-f', 'rawvideo', '-r', '20', '-pix_fmt', 'yuv420p', '-vf', 'scale=854:480', video, '-y'],
+        stdin=None,
+        stdout=None,
+        stderr=None,
+        cwd=None,
+    )
 
-    elif media.video or media.document:
-        msg = await m.reply_text("📥 **Downloading..**")
-        video = await media.download()
-        chat_id = m.chat.id
-        await sleep(2)
+async def leave_call(chat_id: int):
+    process = FFMPEG_PROCESS.get(chat_id)
+    if process:
         try:
-            group_call = group_call_factory.get_group_call()
-            await group_call.join(chat_id)
-            await group_call.start_video(video, repeat=False)
-            VIDEO_CALL[chat_id] = group_call
-            await msg.edit("🎚**Video Streaming Started!**\n\n» **join to video chat to watch the video.**")
-            try:
-                STREAM.remove(0)
-            except:
-                pass
-            try:
-                STREAM.add(1)
-            except:
-                pass
+            process.send_signal(SIGINT)
+            await asyncio.sleep(3)
         except Exception as e:
-            await msg.edit(f"❌ **Something went wrong!** \n\nerror: `{e}`")
-    else:
-        await msg.edit("**Please reply to a video or live stream url or youtube url to stream the video!**")
-        return
-
-
-@Client.on_message(command(["stop", f"stop@{BOT_USERNAME}"]) & filters.group & ~filters.edited)
-@authorized_users_only
-async def stop(_, m: Message):
-    chat_id = m.chat.id
-    if 0 in STREAM:
-        await m.reply_text("🙋‍** Give me  video or live stream url or youtube url  to stream the video!\n\n Use the /vplay command by replying to the video\n\nOr giveing live stream url or youtube url **")
-        return
+            print(e)
+            pass
     try:
-        await VIDEO_CALL[chat_id].stop()
-        await m.reply_text("🔴 **Streaming has ended !**")
-        try:
-            STREAM.remove(1)
-        except:
-            pass
-        try:
-            STREAM.add(0)
-        except:
-            pass
+        await call_py.leave_group_call(chat_id)
     except Exception as e:
-        await m.reply_text(f"❌ **Something went wrong! ** \n\nerror: `{e}`")
+        print(f"❌ Something went wrong...")
+
+def youtube(url: str):
+    try:
+        params = {"format": "best[height=?480]/best", "noplaylist": True}
+        yt = YoutubeDL(params)
+        info = yt.extract_info(url, download=False)
+        return info['url'], info['title'], info['duration']
+    except ExtractorError:
+        return None, None
+    except Exception:
+        return None, None
+
+
+@Client.on_message(command(["vplay", f"vplay@{Sophia.BOT_USERNAME}"]) & filters.group & ~filters.edited)
+@authorized_users_only
+async def startvideo(client, m: Message):
+    
+    keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        text="🙋‍♀️ Support Group",
+                        url=f"https://t.me/sophiasupport_official"),
+                    InlineKeyboardButton(
+                        text="💬 Updates Channel",
+                        url=f"https://t.me/Sophiaupdates")
+                ]
+            ]
+        )
+    
+    replied = m.reply_to_message
+    if not replied:
+        if len(m.command) < 2:
+            await m.reply("🎚 **Reply to video or provide youtube/live video url to start video streaming**")
+        else:
+            livelink = m.text.split(None, 1)[1]
+            chat_id = m.chat.id
+            try:
+                livelink, title, duration = await asyncio.wait_for(
+                    app.loop.run_in_executor(
+                        None,
+                        lambda : youtube(livelink)
+                    ),
+                    timeout=None
+                )
+            except asyncio.TimeoutError:
+                await m.reply("TimeoutError: Process is taking unexpected time")
+                return
+            if not livelink:
+                await m.reply("Failed to get video data")
+                return
+            process = raw_converter(livelink, f'audio{chat_id}.raw', f'video{chat_id}.raw')
+            FFMPEG_PROCESS[chat_id] = process
+            msg = await m.reply("🔁 **Starting video streaming...**")
+            await asyncio.sleep(10)
+            try:
+                audio_file = f'audio{chat_id}.raw'
+                video_file = f'video{chat_id}.raw'
+                while not os.path.exists(audio_file) or \
+                        not os.path.exists(video_file):
+                    await asyncio.sleep(2)
+                await call_py.join_group_call(
+                    chat_id,
+                    InputAudioStream(
+                        audio_file,
+                        AudioParameters(
+                            bitrate=48000,
+                        ),
+                    ),
+                    InputVideoStream(
+                        video_file,
+                        VideoParameters(
+                            width=854,
+                            height=480,
+                            frame_rate=20,
+                        ),
+                    ),
+                    stream_type=StreamType().local_stream,
+                )
+                await m.reply_photo(
+                    photo="https://telegra.ph/file/c20394b9b4e81cedc94c2.png",
+                    reply_markup=keyboard,
+                    caption=f"🎛 **Video streaming started!**\n\n🏷 **Name:** {title}\n⏱ **Duration:** `{convert_seconds(duration)} m`\n\n» **join to video chat on the top to watch the video.**")
+                return await msg.delete()
+                await idle()
+            except Exception as e:
+                await msg.edit(f"❌ Something Went wrong.. | `{e}`")
+   
+    elif replied.video or replied.document:
+        msg = await m.reply("📥 Downloading video...")
+        video = await client.download_media(m.reply_to_message)
+        chat_id = m.chat.id
+        await msg.edit("🔁 **Prossesing video...**")
+        os.system(f"ffmpeg -i '{video}' -f s16le -ac 1 -ar 48000 'audio{chat_id}.raw' -y -f rawvideo -r 20 -pix_fmt yuv420p -vf scale=640:360 'video{chat_id}.raw' -y")
+        try:
+            audio_file = f'audio{chat_id}.raw'
+            video_file = f'video{chat_id}.raw'
+            while not os.path.exists(audio_file) or \
+                    not os.path.exists(video_file):
+                await asyncio.sleep(2)
+            await call_py.join_group_call(
+                chat_id,
+                InputAudioStream(
+                    audio_file,
+                    AudioParameters(
+                        bitrate=48000,
+                    ),
+                ),
+                InputVideoStream(
+                    video_file,
+                    VideoParameters(
+                        width=640,
+                        height=360,
+                        frame_rate=20,
+                    ),
+                ),
+                stream_type=StreamType().local_stream,
+            )
+            await m.reply_photo(
+                photo="https://telegra.ph/file/c20394b9b4e81cedc94c2.png",
+                reply_markup=keyboard,
+                caption=f"🎛 **video streaming started !**\n\n» **join to video chat on the top to watch the video.**")
+            return await msg.delete()
+        except Exception as e:
+            await msg.edit(f"❌ Something went wrong.. **error** | `{e}`")
+            await idle()
+    else:
+        await m.reply("💭 please reply to video or video file to stream")
+
+
+@Client.on_message(command(["vstop", f"vstop@{Sophia.BOT_USERNAME}"]) & filters.group & ~filters.edited)
+@authorized_users_only
+async def stopvideo(client, m: Message):
+    chat_id = m.chat.id
+    try:
+        process = FFMPEG_PROCESS.get(chat_id)
+        if process:
+            try:
+                process.send_signal(SIGINT)
+                await asyncio.sleep(3)
+            except Exception as e:
+                print(e)
+                pass
+        await call_py.leave_group_call(chat_id)
+        await m.reply("✅ **Successfully left vc !**")
+    except Exception as e:
+        await m.reply(f"❌ Something went wrong..| `{e}`")
+
+@call_py.on_stream_end()
+async def handler(client: PyTgCalls, update: Update):
+    LOG.info(f"called ended stream")
+    chat_id = update.chat_id
+    await call_py.leave_group_call(chat_id)
+
+
+@Client.on_message(command(["cplay", f"cplay@{Sophia.BOT_USERNAME}"]) & filters.group & ~filters.edited)
+@authorized_users_only
+async def chstream(client, m: Message):
+    replied = m.reply_to_message
+    if not replied:
+        if len(m.command) < 2:
+            await m.reply("💬 **Reply to video or provide youtube/live video url to start video streaming**")
+        else:
+            livelink = m.text.split(None, 1)[1]
+            chat_id = Sophia.CHANNEL
+            try:
+                livelink = await asyncio.wait_for(
+                    app.loop.run_in_executor(
+                        None,
+                        lambda : youtube(livelink)
+                    ),
+                    timeout=None
+                )
+            except asyncio.TimeoutError:
+                await m.reply("TimeoutError: process is taking unexpected time")
+                return
+            if not livelink:
+                await m.reply("Failed to get video data")
+                return
+            process = raw_converter(livelink, f'audio{chat_id}.raw', f'video{chat_id}.raw')
+            FFMPEG_PROCESS[chat_id] = process
+            msg = await m.reply("🔁 **Starting video streaming...**")
+            await asyncio.sleep(10)
+            try:
+                audio_file = f'audio{chat_id}.raw'
+                video_file = f'video{chat_id}.raw'
+                while not os.path.exists(audio_file) or \
+                        not os.path.exists(video_file):
+                    await asyncio.sleep(2)
+                await call_py.join_group_call(
+                    chat_id,
+                    InputAudioStream(
+                        audio_file,
+                        AudioParameters(
+                            bitrate=48000,
+                        ),
+                    ),
+                    InputVideoStream(
+                        video_file,
+                        VideoParameters(
+                            width=854,
+                            height=480,
+                            frame_rate=20,
+                        ),
+                    ),
+                    stream_type=StreamType().local_stream,
+                )
+                await msg.edit("🎚 **Video streaming channel started !**")
+                await idle()
+            except Exception as e:
+                await msg.edit(f"🚫 **error** - `{e}`")
+   
+    elif replied.video or replied.document:
+        msg = await m.reply("📥 **Downloading video...**")
+        video = await client.download_media(m.reply_to_message)
+        chat_id = Sophia.CHANNEL
+        await msg.edit("🔁 **Prosessing video...**")
+        os.system(f"ffmpeg -i '{video}' -f s16le -ac 1 -ar 48000 'audio{chat_id}.raw' -y -f rawvideo -r 20 -pix_fmt yuv420p -vf scale=640:360 'video{chat_id}.raw' -y")
+        try:
+            audio_file = f'audio{chat_id}.raw'
+            video_file = f'video{chat_id}.raw'
+            while not os.path.exists(audio_file) or \
+                    not os.path.exists(video_file):
+                await asyncio.sleep(2)
+            await call_py.join_group_call(
+                chat_id,
+                InputAudioStream(
+                    audio_file,
+                    AudioParameters(
+                        bitrate=48000,
+                    ),
+                ),
+                InputVideoStream(
+                    video_file,
+                    VideoParameters(
+                        width=640,
+                        height=360,
+                        frame_rate=20,
+                    ),
+                ),
+                stream_type=StreamType().local_stream,
+            )
+            await msg.edit("🎚 **Video streaming channel started !**")
+        except Exception as e:
+            await msg.edit(f"❌ Something went wrong.. - `{e}`")
+            await idle()
+    else:
+        await m.reply("💭 **Please reply to video or video file to stream**")
+
+
+@Client.on_message(command(["cstop", f"cstop@{Sophia.BOT_USERNAME}"]) & filters.group & ~filters.edited)
+@authorized_users_only
+async def chstopvideo(client, m: Message):
+    chat_id = Sophia.CHANNEL
+    try:
+        process = FFMPEG_PROCESS.get(chat_id)
+        if process:
+            try:
+                process.send_signal(SIGINT)
+                await asyncio.sleep(3)
+            except Exception as e:
+                print(e)
+                pass
+        await call_py.leave_group_call(chat_id)
+        await m.reply("✅ **Video streaming channel ended**")
+    except Exception as e:
+        await m.reply(f"❌ Something went wrong.. `{e}`")
+
+
+
