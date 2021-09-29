@@ -3,7 +3,7 @@ from pyrogram.types import Message
 from youtube_search import YoutubeSearch
 from pyrogram import Client as app
 from helpers.filters import command
-from config import BOT_USERNAME
+from config import Sophia
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
 
-@app.on_message(command(["search", f"search@{BOT_USERNAME}"]))
+@app.on_message(command(["search", f"search@{Sophia.BOT_USERNAME}"]))
 async def ytsearch(_, message: Message):
     try:
         if len(message.command) < 2:
