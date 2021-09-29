@@ -1,5 +1,5 @@
 from typing import Dict, List
-from config import admins
+from config import Sophia
 
 
 admins: Dict[int, List[int]] = {}
