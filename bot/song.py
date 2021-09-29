@@ -23,7 +23,7 @@ from helpers.filters import command
 from helpers.decorators import humanbytes
 
 
-@Client.on_message(command(["song", f"song@{Veez.BOT_USERNAME}"]) & ~filters.channel)
+@Client.on_message(command(["song", f"song@{Sophia.BOT_USERNAME}"]) & ~filters.channel)
 def song(_, message):
     query = " ".join(message.command[1:])
     m = message.reply("🔎 finding song...")
