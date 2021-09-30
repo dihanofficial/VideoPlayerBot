@@ -1,22 +1,11 @@
 <h1> Telegram Video Player Bot 🎶 </h1>
 
- Telegram bot project for streaming video on telegram video chat, powered by [tgcalls](https://github.com/MarshalX/tgcalls) and [pyrogram](https://github.com/pyrogram/pyrogram)
-
-
-
-
-
+ Telegram bot project for streaming video on telegram video chat, powered by [pytgcalls](https://github.com/pytgcalls/pytgcalls) and [pyrogram](https://github.com/pyrogram/pyrogram)
 
 ##  Deploy to Heroku  👨‍🔧
 The easy way to host this bot
 
 <a href="https://heroku.com/deploy?template=https://github.com/dihanofficial/VideoPlayerBot"><img src="https://img.shields.io/badge/Deploy%20To%20Heroku-black?style=for-the-badge&logo=heroku" width="220" height="38.45"/></a>
-
-
-# Deploy On Railway
-[![Deploy+on+Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/dihanofficial/VideoPlayerBot&envs=API_ID,API_HASH,BOT_TOKEN,SESSION_NAME,ASSISTANT_NAME,BOT_USERNAME,DURATION_LIMIT,SUDO_USERS)
-  
-
 
 ❓ --**Setting Up**-- :
 - 1.) first, add me to your group.
@@ -36,17 +25,15 @@ The easy way to host this bot
 - cd video-stream
 - virtualenv env #Create Virtual Environment.
 - source env/bin/activate #Activate Virtual Environment
+- curl -sL https://deb.nodesource.com/setup_16.x | sudo bash - #update node to latest version
+- sudo apt-get install -y nodejs
 - pip3 install --upgrade pip
 - pip3 install -U -r requirements.txt
 - sudo nano config.py #Fill it with your variables value.
 - python3 -m bot
 ```
- 
-
 
 # Credits ⚔ 
 
-- [MarshalX](https://github.com/MarshalX) for [pytgcalls](https://github.com/MarshalX/tgcalls)
+- [Laky-64](https://github.com/Laky-64) for [pytgcalls](https://github.com/pytgcalls/pytgcalls)
 - [Dan](https://github.com/delivrance) for [Pyrogram](https://github.com/pyrogram/pyrogram)
-
-
