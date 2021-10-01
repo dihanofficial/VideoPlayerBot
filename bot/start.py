@@ -32,3 +32,25 @@ async def _human_time_duration(seconds):
     return ', '.join(parts)
 
 
+@Client.on_message(command(["start", f"start@{Sophia.BOT_USERNAME}"]))
+async def start(_, m: Message):
+    if m.chat.type == "private":
+        await m.reply_text(
+            f" **Hello there, I am a telegram group video streaming bot.**\n\n💭 **I was created to stream videos in group "
+            f"video chats easily.**\n\n❔ **To find out how to use me, please press the help button below** 👇🏻",
+            reply_markup=InlineKeyboardMarkup(
+                [[
+                    InlineKeyboardButton(
+                        "➕ Add me to your Group ➕", url=f"https://t.me/{Sophia.BOT_USERNAME}?startgroup=true")
+                ], [
+                    InlineKeyboardButton(
+                        "💬 Support Group", url="https://t.me/SophiaSupport_Official"),
+                    InlineKeyboardButton(
+                        "📣 Updates Channel", url="https://t.me/SophiaUpdates")
+                ], [
+                    InlineKeyboardButton(
+                        "👨‍🔧 Developer", url="https://t.me/dihanrandila")
+                ]]
+            ))
+    else:
+        await m.reply_text("** Video Player Bot is Online! ✨**")
