@@ -36,7 +36,7 @@ async def _human_time_duration(seconds):
 async def start(_, m: Message):
     if m.chat.type == "private":
         await m.reply_text(
-            f" **Hello there, I am a telegram group video streaming bot.**\n\n💭 **I was created to stream videos in group "
+            f"**Hello there, I am a telegram group video streaming bot.**\n\n💭 **I was created to stream videos in group "
             f"video chats easily.**\n\n❔ **To find out how to use me, please press the help button below** 👇🏻",
             reply_markup=InlineKeyboardMarkup(
                 [[
@@ -44,12 +44,18 @@ async def start(_, m: Message):
                         "➕ Add me to your Group ➕", url=f"https://t.me/{Sophia.BOT_USERNAME}?startgroup=true")
                 ], [
                     InlineKeyboardButton(
+                        "Source Code 💾", url=f"https://github.com/dihanofficial/videoplayerbot")
+                ], [
+                    InlineKeyboardButton(
                         "💬 Support Group", url="https://t.me/SophiaSupport_Official"),
                     InlineKeyboardButton(
                         "📣 Updates Channel", url="https://t.me/SophiaUpdates")
                 ], [
                     InlineKeyboardButton(
-                        "👨‍🔧 Developer", url="https://t.me/dihanrandila")
+                        "👩 Developer", url="https://t.me/dihanofficial")
+                ], [
+                    InlineKeyboardButton(
+                        "📚 All Command List", callback_data="cblist")
                 ]]
             ))
     else:
