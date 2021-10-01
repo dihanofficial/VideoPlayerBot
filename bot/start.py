@@ -47,6 +47,9 @@ async def start(_, m: Message):
                         "Source Code 💾", url=f"https://github.com/dihanofficial/videoplayerbot")
                 ], [
                     InlineKeyboardButton(
+                        "Follow Me ", url=f"https://github.com/dihanofficial/")
+                ], [
+                    InlineKeyboardButton(
                         "💬 Support Group", url="https://t.me/SophiaSupport_Official"),
                     InlineKeyboardButton(
                         "📣 Updates Channel", url="https://t.me/SophiaUpdates")
