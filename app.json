@@ -1,15 +1,15 @@
 {
-    "name": "Video Stream Bot",
-    "description": "bot to stream video on telegram video chat, powered by pytgcalls and pyrogram , Project @dihanofficial",
+    "name": "Veez Video Stream Bot",
+    "description": "telegram bot for streaming video trought the telegram group video chat, powered by pytgcalls and pyrogram",
     "logo": "https://telegra.ph/file/103a5208bb1698a8b33de.png",
     "keywords": [
         "pytgcalls",
         "telegram bot",
         "video stream"
     ],
-    "website": "https://t.me/dihanofficial",
-    "repository": "https://github.com/dihanofficial/VideoPlayerBot",
-    "success_url": "https://t.me/dihanofficial",
+    "website": "https://t.me/levinachannel",
+    "repository": "https://github.com/levina-lab/video-stream",
+    "success_url": "https://t.me/dlwrml",
     "env": {
         "API_ID": {
             "description": "your APP_ID from my.telegram.org",
@@ -42,12 +42,30 @@
         "DURATION_LIMIT": {
             "description": "maximum duration limit for downloadable videos (in minutes)",
             "required": true
+        },
+        "GROUP_NAME": {
+            "description": "fill with your group username without @",
+            "required": true
+        },
+        "CHANNEL_NAME": {
+            "description": "fill with your channel username without @",
+            "required": true
+        },
+        "OWNER_NAME": {
+            "description": "fill with your telegram account username without @",
+            "required": true
         }
     },
     "addons": [],
     "buildpacks": [
         {
             "url": "heroku/python"
+        },
+        {
+            "url": "heroku/nodejs"
+        },
+        {
+            "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
         }
     ],
     "formation": {
@@ -56,5 +74,5 @@
             "size": "free"
         }
     },
-    "stack": "heroku-20"
+    "stack": "container"
 }

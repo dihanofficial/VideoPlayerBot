@@ -1,0 +1,10 @@
+# Copyright (C) 2021 By VeezMusicProject
+
+version: '3.4'
+
+services:
+  videostream:
+    image: videostream
+    build:
+      context: .
+      dockerfile: ./Dockerfile

@@ -1,3 +1,5 @@
+
+
 import os
 from os import path, getenv
 from dotenv import load_dotenv
@@ -19,6 +21,6 @@ class Sophia(object):
         ASSISTANT_NAME = getenv("ASSISTANT_NAME", "")
         BOT_USERNAME = getenv("BOT_USERNAME", "")
         COMMAND_PREFIXES = list(getenv("COMMAND_PREFIXES", "/ ! .").split())
-        CHANNEL_NAME = getenv("CHANNEL_NAME", "SophiaUpdates")
+        CHANNEL_NAME = getenv("CHANNEL_NAME", "sophiaupdates")
         GROUP_NAME = getenv("GROUP_NAME", "SophiaSupport_Official")
         OWNER_NAME = getenv("OWNER_NAME", "dihanrandila")
