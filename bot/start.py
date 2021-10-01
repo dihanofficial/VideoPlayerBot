@@ -62,4 +62,17 @@ async def start(_, m: Message):
                 ]]
             ))
     else:
-        await m.reply_text("** Video Player Bot is Online! ✨**")
+        await m.reply_text("**Video Player Bot is Online now ✨**",
+                           reply_markup=InlineKeyboardMarkup(
+                               [[
+                                   InlineKeyboardButton(
+                                       "Support Group", url="https://t.me/SophiaSupport_Official")
+                               ], [
+                                   InlineKeyboardButton(
+                                       "Updates Channel", url="https://t.me/SophiaUpdates")
+                               ], [
+                                   InlineKeyboardButton(
+                                       "🌐 Search Youtube", switch_inline_query='')
+                               ]]
+                           )
+                           )
